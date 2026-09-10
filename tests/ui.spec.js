@@ -17,7 +17,9 @@ test("all pages render without errors or horizontal page overflow, on desktop an
     ]) {
       const response = await page.goto("/" + url);
       expect(response.status()).toBe(200);
-      await expect(page.locator(".brand")).toContainText("meridian");
+      await expect(page.locator(".brand")).toHaveText(
+        "Executive DecisionIntelligence System",
+      );
       await expect(page.locator("h1")).toBeVisible();
       expect(
         await page.evaluate(
@@ -49,7 +51,7 @@ test("portfolio filters, search, sorting, account context and export work", asyn
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export portfolio" }).click();
   expect((await downloadPromise).suggestedFilename()).toBe(
-    "meridian-portfolio-2025.csv",
+    "executive-decision-intelligence-portfolio-2025.csv",
   );
   await page
     .locator("#accountRows")
@@ -162,7 +164,7 @@ test("one-time support changes cash timing without changing the economic commitm
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export scenario" }).click();
   expect((await download).suggestedFilename()).toBe(
-    "meridian-relationship-support.csv",
+    "executive-decision-intelligence-relationship-support.csv",
   );
   await page.locator("#accountSelect").selectOption("5");
   await expect(page.locator("#accountSelect")).toHaveValue("5");

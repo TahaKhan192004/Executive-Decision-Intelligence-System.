@@ -196,7 +196,7 @@ if (require.main === module) {
   const port = Number(process.env.PORT) || 4173;
   server.listen(port, "127.0.0.1", () =>
     console.log(
-      `Meridian is running at http://localhost:${port}\nAnalysis mode: ${configured() ? "Connected AI" : "Local · configure OPENAI_API_KEY and OPENAI_MODEL to enable AI"}`,
+      `Executive Decision Intelligence System is running at http://localhost:${port}\nAnalysis mode: ${configured() ? "Connected AI" : "Local · configure OPENAI_API_KEY and OPENAI_MODEL to enable AI"}`,
     ),
   );
 }

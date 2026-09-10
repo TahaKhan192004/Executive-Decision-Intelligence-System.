@@ -1,4 +1,4 @@
-# Meridian — Executive Intelligence
+# Executive Decision Intelligence System
 
 A strategic account decision workspace tailored to Leonardo's conversation and industrial-minerals background. All customer accounts and financial records are fictional. Public company context is separately cited in the app. The fixed reporting snapshot is **31 December 2025**, with three years of synthetic monthly records.
 

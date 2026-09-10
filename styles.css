@@ -110,6 +110,12 @@ small {
   letter-spacing: -1px;
   font-weight: 600;
 }
+.brand .system-name {
+  font-size: 17px;
+  line-height: 1.45;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
 .brand-mark {
   font:
     italic 45px/1 Georgia,
