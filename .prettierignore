@@ -1,0 +1,5 @@
+node_modules/
+test-results/
+data/
+.env*
+package-lock.json
