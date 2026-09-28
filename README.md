@@ -4,6 +4,8 @@ A strategic account decision workspace tailored to Leonardo's conversation and i
 
 See [conversation analysis, company research and the 15-minute walkthrough](docs/LEONARDO-BRIEFING.md). This private preparation file is excluded from the server's public allowlist.
 
+For a presenter-ready product explanation and proposed production architecture, see the [demonstration guide](DEMONSTRATION-GUIDE.md).
+
 ## Run
 
 Requires Node.js 20 or newer. There are no production dependencies.

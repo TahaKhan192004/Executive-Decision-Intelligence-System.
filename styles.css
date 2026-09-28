@@ -2425,6 +2425,244 @@ dialog .button {
     break-inside: avoid;
   }
 }
+/* Executive overview refinement: restrained ink, clearer hierarchy, stronger scan paths. */
+body[data-page="overview"] .page-heading {
+  align-items: flex-end;
+  padding: 8px 0 25px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
+}
+body[data-page="overview"] .page-heading h1 {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: clamp(31px, 3vw, 42px);
+  letter-spacing: -1.5px;
+  font-weight: 600;
+  color: var(--navy);
+}
+body[data-page="overview"] .page-heading p {
+  font-size: 13px;
+  max-width: 720px;
+}
+body[data-page="overview"] .metrics {
+  box-shadow: none;
+  border-radius: 8px;
+  padding: 24px 0;
+  margin-bottom: 27px;
+}
+body[data-page="overview"] .metric-value {
+  color: var(--navy);
+  font-size: clamp(25px, 2.3vw, 34px);
+  letter-spacing: -1.2px;
+}
+body[data-page="overview"] .metric-note {
+  line-height: 1.55;
+}
+body[data-page="overview"] .overview-grid {
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: 18px;
+}
+body[data-page="overview"] .attention-panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--teal);
+  padding: 25px 27px;
+}
+body[data-page="overview"] .attention-panel h3 {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: clamp(22px, 2vw, 28px);
+  font-weight: 600;
+  line-height: 1.23;
+  letter-spacing: -0.8px;
+  color: var(--navy);
+}
+body[data-page="overview"] .attention-panel > p {
+  max-width: 560px;
+  color: #617174;
+}
+body[data-page="overview"] .radar-panel {
+  padding: 25px 22px;
+}
+.lead-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 19px;
+}
+.lead-kicker .eyebrow {
+  margin: 0;
+}
+body[data-page="overview"] .spotlight-stats > div {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+body[data-page="overview"] .spotlight-stats strong {
+  font-size: clamp(17px, 1.7vw, 22px);
+  font-variant-numeric: tabular-nums;
+}
+body[data-page="overview"] .spotlight-bottom {
+  border-top: 1px solid var(--line);
+  padding-top: 15px;
+}
+.radar-caption {
+  color: var(--muted);
+}
+.future-estimate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.32fr);
+  gap: 12px 28px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--teal);
+  border-radius: 7px;
+  background: white;
+  padding: 21px 24px;
+  margin: 0 0 23px;
+}
+.future-estimate h2 {
+  font-size: 17px;
+  color: var(--navy);
+  margin: 0 0 7px;
+}
+.future-estimate p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+  max-width: 780px;
+}
+.future-estimate p strong {
+  color: var(--teal);
+  font-size: 14px;
+}
+.estimate-side {
+  border-left: 1px solid var(--line);
+  padding-left: 22px;
+}
+.estimate-side strong,
+.estimate-side span {
+  display: block;
+}
+.estimate-side strong {
+  color: var(--navy);
+  font-size: 23px;
+  font-variant-numeric: tabular-nums;
+}
+.estimate-side span {
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 3px;
+}
+.estimate-side .estimate-confidence {
+  color: var(--amber);
+  margin-top: 9px;
+}
+.future-estimate details {
+  grid-column: 1/-1;
+  border-top: 1px solid var(--line);
+  padding-top: 11px;
+}
+.future-estimate summary {
+  cursor: pointer;
+  color: var(--teal);
+  font-size: 10px;
+  font-weight: 600;
+}
+.future-estimate details p {
+  margin-top: 10px;
+}
+.decision-log-form {
+  margin-top: 27px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.decision-log-form h3 {
+  color: var(--navy);
+  font-size: 15px;
+}
+.decision-log-form > p {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 6px 0 17px;
+}
+.decision-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.decision-fields label,
+.decision-log-form > label {
+  display: block;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 600;
+  margin: 10px 0 7px;
+}
+.decision-fields input,
+.decision-fields select,
+.decision-log-form textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  border: 1px solid #d7dfd9;
+  border-radius: 5px;
+  background: #fff;
+  padding: 10px;
+  color: var(--ink);
+  font-size: 11px;
+}
+.decision-log-form textarea {
+  line-height: 1.6;
+  resize: vertical;
+}
+#decisionRecordStatus {
+  color: var(--teal);
+  font-size: 10px;
+  margin-left: 12px;
+}
+.decision-history {
+  margin-top: 22px;
+}
+.decision-history h4 {
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.decision-history-item {
+  border-top: 1px solid var(--line);
+  padding: 13px 0;
+}
+.decision-history-item > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11px;
+}
+.decision-history-item > div span,
+.decision-history-item p,
+.decision-history-empty {
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 7px;
+}
+.decision-history-item .text-link {
+  border: 0;
+  background: none;
+  padding: 6px 0 0;
+}
+@media (max-width: 760px) {
+  body[data-page="overview"] .overview-grid,
+  .future-estimate {
+    grid-template-columns: 1fr;
+  }
+  .estimate-side {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding: 12px 0 0;
+  }
+  .decision-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}
 /* Keep accessible table labels within their scroll container. */
 th {
   position: relative;

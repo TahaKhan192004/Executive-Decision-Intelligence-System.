@@ -6,10 +6,36 @@ function economicsStrip(c) {
   return `<section class="economics-strip" aria-label="Industrial account economics"><div><small>Customer market</small><strong>${esc(c.region)}</strong></div><div><small>Synthetic annual volume</small><strong>${c.tonnes.toLocaleString()} t</strong></div><div><small>Gross profit / tonne</small><strong>${money(c.profit / c.tonnes)}</strong></div><div><small>Relationship history</small><strong>${c.relationshipYears} years</strong></div><p>Unit economics use an illustrative annual tonnage input. Gross profit excludes overhead and is not EBITDA.</p></section>`;
 }
 function reviewPanel(c) {
-  return `<section class="panel review-panel">${panelHead("The executive’s judgment", "Capture the conditions under which this relationship merits support.")}<div class="review-grid"><div><label for="decisionView">Current perspective</label><select id="decisionView"><option>Evidence gathering</option><option>Consider conditional support</option><option>Defer pending evidence</option><option>Do not support on current evidence</option></select><label for="decisionNotes">Reasoning & conditions</label><textarea id="decisionNotes" rows="4" maxlength="3000" placeholder="What do you know about this customer that the numbers do not show?"></textarea><button class="button primary" id="saveReview">Save review notes</button><span id="reviewSaveStatus" role="status"></span></div><div class="evidence-gaps"><h3>Evidence still needed</h3><p><strong>Application specialist</strong> Review the technical claim and qualification requirements.</p><p><strong>Finance</strong> Validate cash headroom and a maximum support commitment.</p><p><strong>Commercial lead</strong> Confirm demand, milestones and the decision owner.</p><p><strong>Operations & ESG</strong> Verify capacity, delivery, safety and environmental requirements. No account-level ESG evidence is included.</p></div></div><p class="subtle">Saved only in this browser for this fictional account. A review note is not an approval, a workflow assignment or a message to anyone.</p></section>`;
+  return `<section class="panel review-panel">${panelHead("The executive’s judgment", "Capture the conditions under which this relationship merits support.")}<div class="review-grid"><div><label for="decisionView">Current perspective</label><select id="decisionView"><option>Evidence gathering</option><option>Consider conditional support</option><option>Defer pending evidence</option><option>Do not support on current evidence</option></select><label for="decisionNotes">Reasoning & conditions</label><textarea id="decisionNotes" rows="4" maxlength="3000" placeholder="What do you know about this customer that the numbers do not show?"></textarea><button class="button primary" id="saveReview">Save review notes</button><span id="reviewSaveStatus" role="status"></span></div><div class="evidence-gaps"><h3>Evidence still needed</h3><p><strong>Application specialist</strong> Review the technical claim and qualification requirements.</p><p><strong>Finance</strong> Validate cash headroom and a maximum support commitment.</p><p><strong>Commercial lead</strong> Confirm demand, milestones and the decision owner.</p><p><strong>Operations & ESG</strong> Verify capacity, delivery, safety and environmental requirements. No account-level ESG evidence is included.</p></div></div><div class="decision-log-form"><h3>Record a decision and follow-up</h3><p>Keep the decision, owner, conditions and later result together. This record stays in this browser.</p><div class="decision-fields"><label>Decision<select id="recordDecision"><option>Pending</option><option>Support approved</option><option>Support declined</option><option>Deferred</option><option>Other</option></select></label><label>Decision owner<input id="recordOwner" maxlength="120" placeholder="Name or role"></label><label>Decision date<input id="recordDate" type="date"></label><label>Outcome status<select id="recordOutcomeStatus"><option>Awaiting outcome</option><option>Outcome reviewed</option></select></label></div><label for="recordConditions">Conditions and rationale</label><textarea id="recordConditions" rows="3" maxlength="3000" placeholder="What was decided, why, and under what conditions?"></textarea><label for="recordOutcome">Follow-up outcome / learning</label><textarea id="recordOutcome" rows="3" maxlength="3000" placeholder="Update later with realized sales, margin, payment, retention, or lessons."></textarea><button class="button" id="saveDecisionRecord">Save decision record</button><span id="decisionRecordStatus" role="status"></span><div id="decisionHistory" class="decision-history"></div></div><p class="subtle">Browser-local demonstration record; it is not an approval workflow, shared database or notification.</p></section>`;
 }
 function bindReview(c) {
   const key = `meridian-decision-review-${c.id}`;
+  const recordsKey = `meridian-decision-records-${c.id}`;
+  const readRecords = () => {
+    try {
+      const records = JSON.parse(localStorage.getItem(recordsKey) || "[]");
+      return Array.isArray(records) ? records : [];
+    } catch { return []; }
+  };
+  const renderRecords = () => {
+    const records = readRecords();
+    $("#decisionHistory").innerHTML = records.length
+      ? `<h4>Decision history · ${records.length}</h4>${records.slice().reverse().map((r, i) => `<article class="decision-history-item"><div><strong>${esc(r.decision)}</strong><span>${esc(r.date || "Date not set")} · ${esc(r.owner || "Owner not recorded")} · ${esc(r.outcomeStatus)}</span></div><p><b>Conditions:</b> ${esc(r.conditions || "None recorded")}</p><p><b>Outcome:</b> ${esc(r.outcome || "Not yet recorded")}</p><button class="text-link" data-update-outcome="${records.length - 1 - i}">Update outcome</button></article>`).join("")}`
+      : `<p class="decision-history-empty">No decisions recorded yet.</p>`;
+    document.querySelectorAll("[data-update-outcome]").forEach((button) => button.onclick = () => {
+      const ix = Number(button.dataset.updateOutcome), current = readRecords();
+      const entry = current[ix];
+      $("#recordDecision").value = entry.decision;
+      $("#recordOwner").value = entry.owner;
+      $("#recordDate").value = entry.date;
+      $("#recordOutcomeStatus").value = entry.outcomeStatus;
+      $("#recordConditions").value = entry.conditions;
+      $("#recordOutcome").value = entry.outcome;
+      $("#saveDecisionRecord").dataset.editIndex = String(ix);
+      $("#decisionRecordStatus").textContent = "Editing saved record";
+      $("#recordOutcome").focus();
+    });
+  };
   try {
     const draft = JSON.parse(localStorage.getItem(key) || "null");
     if (draft) {
@@ -32,6 +58,31 @@ function bindReview(c) {
     } catch {
       $("#reviewSaveStatus").textContent =
         "Browser storage unavailable. Copy your notes before leaving.";
+    }
+  };
+  $("#recordDate").value = new Date().toISOString().slice(0, 10);
+  renderRecords();
+  $("#saveDecisionRecord").onclick = () => {
+    const records = readRecords();
+    const record = {
+      decision: $("#recordDecision").value,
+      owner: $("#recordOwner").value.trim(),
+      date: $("#recordDate").value,
+      outcomeStatus: $("#recordOutcomeStatus").value,
+      conditions: $("#recordConditions").value.trim(),
+      outcome: $("#recordOutcome").value.trim(),
+      updatedAt: new Date().toISOString(),
+    };
+    const editIndex = $("#saveDecisionRecord").dataset.editIndex;
+    if (editIndex !== undefined) records[Number(editIndex)] = record;
+    else records.push(record);
+    try {
+      localStorage.setItem(recordsKey, JSON.stringify(records));
+      delete $("#saveDecisionRecord").dataset.editIndex;
+      $("#decisionRecordStatus").textContent = "Decision record saved in this browser";
+      renderRecords();
+    } catch {
+      $("#decisionRecordStatus").textContent = "Browser storage unavailable; copy the record before leaving.";
     }
   };
 }

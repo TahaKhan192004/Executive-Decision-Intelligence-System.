@@ -69,6 +69,11 @@
         factors.premium * 0.2 +
         factors.payment * 0.15,
     );
+    // A transparent scenario, not a probability-weighted forecast: repeat the
+    // latest observed annual growth rate for three years from the 2025 base.
+    const threeYearRunRate = Math.round(
+      revenue * Math.max(0, 1 + growth / 100) ** 3,
+    );
     const value = clamp((profit / 1800000) * 100);
     const quadrant =
       future >= 50
@@ -101,6 +106,7 @@
       premium: premium(c),
       factors,
       future,
+      threeYearRunRate,
       value,
       quadrant,
       status,

@@ -72,6 +72,10 @@ function radar(compact = false) {
 function sourceDetails() {
   return `<details class="source-details"><summary>Data sources & methodology <span>4 datasets · 2023–2025</span></summary><p>All customer accounts and financial figures are fictional. Revenue and margins are aggregated from 288 synthetic monthly order records. The reporting period is January–December 2025, compared with 2024. Product mix and relationship notes are synthetic account inputs. Opportunities are unweighted and are not contracted revenue.</p><div class="source-links">${["customers", "orders", "opportunities", "relationship_notes"].map((s) => `<a href="data/${s}.csv" download>${s}.csv ↓</a>`).join("")}</div></details>${companyContext()}`;
 }
+function futureValuePanel(c) {
+  const years = 3;
+  return `<section class="future-estimate"><div><div class="eyebrow">SCENARIO · NOT A FORECAST</div><h2>Illustrative revenue run-rate in ${years} years</h2><p>If the latest observed annual growth rate repeats for three years, 2025 revenue of ${money(c.revenue)} would imply a run-rate of <strong>${money(c.threeYearRunRate)}</strong>.</p></div><div class="estimate-side"><strong>${signed(c.growth)}%</strong><span>2025 vs. 2024 growth repeated</span><span class="estimate-confidence">Evidence strength: limited · one comparison</span></div><details><summary>Evidence and assumptions</summary><p>Calculated from the synthetic 2024–2025 order ledger. Formula: 2025 annual revenue × (1 + 2025 growth rate)³. This assumes growth persists unchanged, does not include unweighted pipeline, and is not probability-weighted. Actual demand, pricing, capacity, churn and future margin may differ.</p></details></section>`;
+}
 document.body.innerHTML = `<a class="skip-link" href="#main">Skip to content</a><aside class="sidebar"><a class="brand" href="index.html"><span class="system-name">Executive Decision<br>Intelligence System</span></a><div class="workspace"><span class="workspace-mark">C</span><div>Industrial minerals<small>Strategic relationship review</small></div><span class="workspace-chevron">⌄</span></div><div class="nav-label">WORKSPACE</div><nav aria-label="Main navigation">${routes.map(([key, href, label], i) => `${i === 4 ? '<div class="nav-label nav-section">INTELLIGENCE</div>' : ""}<a href="${href}${["account", "brief", "scenario"].includes(key) ? "?id=" + account.id : ""}" class="nav-item ${page === key ? "active" : ""}" ${page === key ? 'aria-current="page"' : ""}><span class="nav-icon" aria-hidden="true">${icons[key]}</span>${label}${key === "morning" ? '<span class="nav-count">5</span>' : ""}</a>`).join("")}</nav><div class="sidebar-bottom"><div class="demo-card"><span class="status-dot"></span> Demonstration workspace<p>Synthetic data. Real possibilities.</p></div><div class="profile"><span class="profile-avatar">L</span><div>Leonardo<small>Advisory-board perspective</small></div></div></div></aside><div class="app-shell"><header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <strong>${routes.find((r) => r[0] === page)[2]}</strong></div><div class="topbar-right"><span class="demo-label">SYNTHETIC DATA</span><span class="snapshot">Snapshot · 31 Dec 2025</span><button class="avatar-button" id="profileInfo" aria-label="About this workspace">L</button></div></header><main id="main" tabindex="-1"></main><footer><span><span class="status-dot"></span> Demonstration using synthetic data</span><span>Evidence informs. Executives decide.</span></footer></div><dialog id="infoDialog"><button class="dialog-close" aria-label="Close dialog">×</button><div class="eyebrow">Executive Decision Intelligence System</div><h2>Built for the longer view.</h2><p>A strategic account intelligence demonstration for Leonardo. All customer accounts, transactions and commercial notes are fictional. Public company context is cited separately; this is an independent demonstration, not a Grupo Curimbaba system.</p><p>The snapshot is fixed at 31 December 2025. Local analysis is available without credentials; live AI requires a server-side model connection.</p><button class="button primary dialog-done">Understood</button></dialog><div id="toast" class="toast" role="status"></div>`;
 $("#profileInfo").onclick = () => $("#infoDialog").showModal();
 $(".dialog-close").onclick = $(".dialog-done").onclick = () =>
@@ -106,15 +110,17 @@ function exportCSV(rows, filename) {
 }
 function overviewPage() {
   const growth = (overview.revenue / overview.previous - 1) * 100;
+  const lead = accounts.find((c) => c.status === "Decision required") || accounts[0];
+  const leadSupport = Model.support(lead);
   $("#main").innerHTML =
     heading(
-      "YOUR PORTFOLIO, IN PERSPECTIVE",
-      "The longer view.",
-      "Prepared for Leonardo. Connect customer economics, technical judgment and the long-term view.",
+      "EXECUTIVE OVERVIEW",
+      "See the signals. Decide where to look.",
+      "Portfolio performance and the relationships that may need executive attention.",
       `<button class="button" id="exportPortfolio">↓ Export portfolio</button><a class="button primary" href="morning-brief.html">Read morning brief <span>↗</span></a>`,
     ) +
-    `<div class="period-line"><span><span class="status-dot"></span> Portfolio overview <b>8 strategic accounts</b></span><span>FY 2025 <span class="divider">|</span> USD</span></div><section class="metrics" aria-label="Portfolio metrics">${metric("Portfolio revenue", money(overview.revenue), `<span class="positive">↗ ${signed(growth)}%</span> vs. previous year`)}${metric("Gross margin", ((overview.profit / overview.revenue) * 100).toFixed(1) + "%", `${money(overview.profit)} gross profit`)}${metric("Open opportunity pipeline", money(overview.pipeline), "6 opportunities · unweighted")}${metric("Executive attention", String(overview.attention).padStart(2, "0"), '<span class="amber-text">1 commercial decision pending</span>')}</section>` +
-    `<div class="overview-grid"><section class="panel attention-panel">${panelHead("A decision worth a closer look", "STRATEGIC ACCOUNT SPOTLIGHT", badge("Decision required"))}<div class="spotlight-account">${accountName(accounts[0])}<span>9-year relationship</span></div><h3>Absorb a loss today.<br>Build a stronger relationship?</h3><p>A specialty-abrasives customer requests a one-time settlement after a claimed process loss. Its high-added-value purchases and growth warrant a closer look.</p><div class="spotlight-stats"><div><small>One-time support request</small><strong class="negative">−$350K</strong></div><div><small>Open opportunity pipeline</small><strong>$3.00M</strong></div><div><small>Revenue growth</small><strong class="positive">+17.0%</strong></div></div><div class="spotlight-bottom"><span>Specialty purchases / growth / cash exposure</span><a href="decision-brief.html?id=1">Open decision brief ↗</a></div></section><section class="panel radar-panel">${panelHead("Long-term value radar", "Where today’s value meets tomorrow’s potential.", '<a class="text-link" href="value-radar.html">Explore ↗</a>')}${radar(true)}<div class="radar-caption"><span class="legend-dot"></span> Select an account to explore the evidence</div></section></div>` +
+    `<div class="period-line"><span><span class="status-dot"></span> Portfolio overview <b>${accounts.length} strategic accounts</b></span><span>FY 2025 <span class="divider">|</span> USD</span></div><section class="metrics" aria-label="Portfolio metrics">${metric("Portfolio revenue", money(overview.revenue), `<span class="positive">↗ ${signed(growth)}%</span> year over year`)}${metric("Gross margin", ((overview.profit / overview.revenue) * 100).toFixed(1) + "%", `${money(overview.profit)} gross profit`)}${metric("Open opportunity pipeline", money(overview.pipeline), "Unweighted · not contracted revenue")}${metric("Executive attention", String(overview.attention).padStart(2, "0"), `${accounts.filter((c) => c.status === "Decision required").length} decision pending`)}</section>` +
+    `<div class="overview-grid"><section class="panel attention-panel"><div class="lead-kicker"><span class="eyebrow">PRIORITY ACCOUNT</span>${badge(lead.status)}</div><div class="spotlight-account">${accountName(lead)}<span>${lead.relationshipYears}-year relationship</span></div><h3>Short-term exposure.<br>Long-term relationship value.</h3><p>A fictional settlement request puts cash at risk. Growth and specialty purchases provide context; future demand and causation remain unverified.</p><div class="spotlight-stats"><div><small>One-time support request</small><strong class="negative">${money(leadSupport.amount)}</strong></div><div><small>Unweighted opportunity pipeline</small><strong>${money(lead.pipeline)}</strong></div><div><small>Revenue growth</small><strong class="positive">${signed(lead.growth)}%</strong></div></div><div class="spotlight-bottom"><span>${lead.premium}% specialty mix · ${money(leadSupport.monthlyCash)}/month for ${leadSupport.months} months</span><a href="decision-brief.html?id=${lead.id}">Review decision brief ↗</a></div></section><section class="panel radar-panel">${panelHead("Current value and future signals", "Explainable portfolio scores · open an account to inspect the evidence.", '<a class="text-link" href="value-radar.html">Method ↗</a>')}${radar(true)}<div class="radar-caption">Scores are comparative signals, not dollar forecasts.</div></section></div>` +
     `<section class="panel accounts-panel">${panelHead("Strategic accounts", "Performance, potential and the signals that matter.", '<span class="table-count">8 accounts</span>')}<div class="table-toolbar"><div class="tabs" role="group" aria-label="Account filters"><button class="selected" data-filter="all">All accounts <span>8</span></button><button data-filter="attention">Needs attention <span>${overview.attention}</span></button><button data-filter="opportunity">With opportunities</button></div><label class="search-box"><span aria-hidden="true">⌕</span><input type="search" id="accountSearch" placeholder="Search accounts…" aria-label="Search accounts"></label></div><div class="table-scroll"><table class="account-table"><thead><tr><th>Account</th><th><button id="sortRevenue">Revenue ↓</button></th><th>Gross margin</th><th>YoY growth</th><th>Future value</th><th>Attention signal</th><th><span class="sr-only">Open account</span></th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="table-foot"><span id="resultsCount"></span><span>Reporting period: Jan – Dec 2025</span></div></section>${sourceDetails()}`;
   let filter = "all",
     reverse = false,
@@ -201,7 +207,7 @@ function accountPage() {
       `${c.industry} · Account 360 · FY 2025`,
       `${select()}<a class="button primary" href="${link("brief")}">Build decision brief ↗</a>`,
     ) +
-    `<div class="account-subnav">${badge(c.status)}<span>Relationship perspective</span><a href="${link("scenario")}">Model relationship support ↗</a></div><section class="metrics">${metric("Annual revenue", money(c.revenue), "2025 · recorded orders")}${metric("Gross margin", c.margin.toFixed(1) + "%", money(c.profit) + " gross profit")}${metric("Revenue growth", signed(c.growth) + "%", "2025 vs. 2024", c.growth >= 0 ? "positive" : "negative")}${metric("Specialty product mix", c.premium + "%", "Explicit specialty-grade classification")}</section>${economicsStrip(c)}<div class="two-col"><section class="panel">${panelHead("Revenue over time", "Monthly synthetic order revenue · 2023–2025")}<div class="revenue-chart">${spark(
+    `<div class="account-subnav">${badge(c.status)}<span>Relationship perspective</span><a href="${link("scenario")}">Model relationship support ↗</a></div><section class="metrics">${metric("Annual revenue", money(c.revenue), "2025 · recorded orders")}${metric("Gross margin", c.margin.toFixed(1) + "%", money(c.profit) + " gross profit")}${metric("Revenue growth", signed(c.growth) + "%", "2025 vs. 2024", c.growth >= 0 ? "positive" : "negative")}${metric("Specialty product mix", c.premium + "%", "Explicit specialty-grade classification")}</section>${economicsStrip(c)}${futureValuePanel(c)}<div class="two-col"><section class="panel">${panelHead("Revenue over time", "Monthly synthetic order revenue · 2023–2025")}<div class="revenue-chart">${spark(
       Model.orders.filter((o) => o.customerId === c.id).map((o) => o.revenue),
       "var(--teal)",
       true,
@@ -502,53 +508,28 @@ function askPage() {
   checkAI();
 }
 function morningPage() {
-  const developments = [
-    {
-      id: 1,
-      type: "Decision required",
-      title: "A claimed loss. A relationship worth examining.",
-      body: "Atlas requests $350K of one-time support after a claimed process loss. Its purchases are entirely specialty grades, revenue is up 17%, and $3M of opportunities remain uncommitted.",
-      next: "Review technical evidence, cash installments and minimum commitments together.",
-      source: "Commercial pipeline & relationship notes",
-      route: "brief",
-    },
-    {
-      id: 2,
-      type: "Margin pressure",
-      title: "More revenue. Less margin.",
-      body: "Nova’s revenue grew 11.0%, while gross margin fell 5.3 percentage points to 18.0%. The growth is not translating proportionately into profit.",
-      next: "Understand pricing and cost movements before the next renewal.",
-      source: "2024 & 2025 order ledger",
-      route: "account",
-    },
-    {
-      id: 5,
-      type: "Payment watch",
-      title: "Growth is putting working capital in focus.",
-      body: "Terra grew 22.0% year over year. Payment terms extended from 45 to 73 days in the relationship notes, with the latest ledger records at 73 days.",
-      next: "Validate cash exposure and the reason for extended terms.",
-      source: "Relationship notes & recent order records",
-      route: "account",
-    },
-    {
-      id: 4,
-      type: "Opportunity",
-      title: "The product mix is moving upmarket.",
-      body: "Omega's specialty nutrition share is 40%, with a $700K distribution opportunity. Commercial notes report rising demand ahead of the next crop cycle.",
-      next: "Validate distributor sell-through and seasonal demand before extending credit.",
-      source: "Product mix & commercial notes; historical mix not available",
-      route: "account",
-    },
-    {
-      id: 3,
-      type: "Monitor",
-      title: "A strong account, with a softer demand signal.",
-      body: "Beta still contributes a 34.0% margin, but relationship notes flag four consecutive months of declining order frequency.",
-      next: "Validate the frequency signal with transaction-level records; the monthly demo ledger cannot establish it.",
-      source: "Relationship notes; frequency signal is qualitative",
-      route: "account",
-    },
-  ];
+  const yearMargin = (c, year) => {
+    const rows = Model.orders.filter((o) => o.customerId === c.id && o.date.startsWith(String(year)));
+    const revenue = rows.reduce((n, o) => n + o.revenue, 0);
+    return revenue ? rows.reduce((n, o) => n + o.revenue - o.cost, 0) / revenue * 100 : 0;
+  };
+  const avgDays = (c, recentOnly = false) => {
+    let rows = Model.orders.filter((o) => o.customerId === c.id && o.date.startsWith("2025"));
+    if (recentOnly) rows = rows.slice(-3);
+    return rows.length ? rows.reduce((n, o) => n + o.paymentDays, 0) / rows.length : 0;
+  };
+  const developments = accounts.map((c) => {
+    const marginDelta = yearMargin(c, 2025) - yearMargin(c, 2024);
+    const paymentDelta = avgDays(c, true) - avgDays(c);
+    let item;
+    if (c.status === "Decision required") item = { priority: 100, type: "Decision required", title: "A support request needs an executive review.", body: `A fictional $350K one-time settlement is under consideration. Revenue grew ${signed(c.growth)}%, specialty purchases are ${c.premium}%, and ${money(c.pipeline)} of pipeline remains uncommitted.`, next: "Validate the technical claim, cash limit and customer commitments.", source: "Relationship notes, order ledger & opportunity pipeline", route: "brief" };
+    else if (marginDelta < -1) item = { priority: 90, type: "Margin pressure", title: "Revenue growth is not translating into margin.", body: `Revenue changed ${signed(c.growth)}% year over year while gross margin moved ${signed(marginDelta)} points to ${c.margin.toFixed(1)}%.`, next: "Review price, product mix and cost movements before renewal.", source: "2024 & 2025 synthetic order ledger", route: "account" };
+    else if (paymentDelta > 8) item = { priority: 85, type: "Payment watch", title: "Recent payment timing has lengthened.", body: `Latest three 2025 records average ${avgDays(c, true).toFixed(0)} days against a ${avgDays(c).toFixed(0)}-day annual average. Revenue grew ${signed(c.growth)}%.`, next: "Confirm the cause and quantify working-capital exposure.", source: "2025 synthetic order ledger & relationship notes", route: "account" };
+    else if (c.growth < 0) item = { priority: 80, type: "Declining revenue", title: "Revenue is below the prior year.", body: `2025 revenue changed ${signed(c.growth)}% year over year; gross margin is ${c.margin.toFixed(1)}%. ${c.pipeline ? `${money(c.pipeline)} in pipeline is unweighted.` : "No open pipeline is recorded."}`, next: "Check demand, customer plans and account economics.", source: "2024 & 2025 synthetic order ledger", route: "account" };
+    else if (c.pipeline > 0) item = { priority: 60 + c.future / 10, type: "Opportunity", title: "An open opportunity could extend the relationship.", body: `${money(c.pipeline)} of unweighted pipeline is recorded alongside ${signed(c.growth)}% revenue growth and ${c.premium}% specialty mix.`, next: "Validate timing, customer commitment and delivery capacity.", source: "Opportunity pipeline, product mix & order ledger", route: "account" };
+    else item = { priority: 30 + c.future / 10, type: "Monitor", title: "Review the account’s latest performance signals.", body: `Revenue changed ${signed(c.growth)}% year over year at a ${c.margin.toFixed(1)}% gross margin. ${c.notes[0]}`, next: "Confirm the relationship note against current customer evidence.", source: "Synthetic order ledger & relationship notes", route: "account" };
+    return { id: c.id, ...item };
+  }).sort((a, b) => b.priority - a.priority).slice(0, 5);
   let read = [];
   try {
     read = JSON.parse(localStorage.getItem("meridian-reviewed") || "[]");
@@ -558,10 +539,10 @@ function morningPage() {
     heading(
       "YOUR EXECUTIVE READING ROOM",
       "Good morning, Leonardo.",
-      "Five developments worth your attention. Start with what could change a decision.",
+      "Signals ranked from the current account records. Each item links to its supporting account evidence.",
       `<span class="brief-date">Portfolio snapshot<br><strong>31 December 2025</strong></span>`,
     ) +
-    `<div class="morning-summary"><span><strong>05</strong> developments</span><span><strong>01</strong> pending decision</span><span><strong id="reviewedCount">${read.length.toString().padStart(2, "0")}</strong> reviewed by you</span><span class="reading-time">A 3-minute perspective</span></div><div class="morning-layout"><section class="morning-feed">${developments
+    `<div class="morning-summary"><span><strong>${String(developments.length).padStart(2, "0")}</strong> prioritized signals</span><span><strong>${accounts.filter((c) => c.status === "Decision required").length.toString().padStart(2, "0")}</strong> pending decisions</span><span><strong id="reviewedCount">${read.length.toString().padStart(2, "0")}</strong> reviewed by you</span><span class="reading-time">Derived from the 2025 snapshot</span></div><div class="morning-layout"><section class="morning-feed">${developments
       .map(
         (d, i) =>
           `<article class="panel development" id="development-${d.id}"><div class="development-number">0${i + 1}</div><div class="development-content"><div class="development-top"><a class="text-link" href="account.html?id=${d.id}">${accounts.find((c) => c.id === d.id).name}</a>${badge(d.type, d.type === "Opportunity" ? "green" : d.type === "Monitor" ? "neutral" : "amber")}</div><h2>${d.title}</h2><p>${d.body}</p><div class="next-step"><strong>Next consideration</strong><span>${d.next}</span></div><small class="source-note">Source: ${d.source}</small><div class="development-actions"><a class="text-link" href="${link(
