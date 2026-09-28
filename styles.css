@@ -99,6 +99,13 @@ small {
   flex-direction: column;
   z-index: 10;
   padding: 30px 17px 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #41595a transparent;
+}
+.sidebar > * {
+  flex-shrink: 0;
 }
 .brand {
   display: flex;
