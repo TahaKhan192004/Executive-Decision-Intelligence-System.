@@ -95,7 +95,9 @@ function bindSelect() {
 function exportCSV(rows, filename) {
   const csv = rows
     .map((row) =>
-      row.map((x) => '"' + String(x).replaceAll('"', '""') + '"').join(","),
+      row
+        .map((x) => '"' + String(I18N.t(x)).replaceAll('"', '""') + '"')
+        .join(","),
     )
     .join("\r\n");
   const url = URL.createObjectURL(
@@ -272,7 +274,12 @@ async function requestAnalysis(type, question) {
   const response = await fetch("/api/analyze", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type, accountId: account.id, question }),
+    body: JSON.stringify({
+      type,
+      accountId: account.id,
+      question,
+      language: I18N.lang,
+    }),
   });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
@@ -467,7 +474,7 @@ function askPage() {
     `<div class="ask-layout"><section class="panel ask-main"><div class="ask-intro"><span class="ask-symbol">✧</span><h2>What deserves a closer look?</h2><p>Explore performance, commercial trade-offs and the relationships worth investing in.</p></div><div class="suggestions">${questions.map((q, i) => `<button data-question="${i}">${q}<span>↗</span></button>`).join("")}</div><form id="askForm"><label class="sr-only" for="askInput">Your business question</label><div class="ask-composer"><textarea id="askInput" rows="2" maxlength="2000" required placeholder="Ask a question about your strategic accounts…"></textarea><button class="button primary" id="askSubmit" type="submit">Ask <span>↑</span></button></div><div class="composer-note"><span data-ai-status>Local analysis · no language model connected</span><span>Enter to ask · Shift + Enter for a new line</span></div></form><section id="answerPanel" class="answer-panel" hidden aria-live="polite"></section></section><aside><section class="panel">${panelHead("Grounded in your records", "Every perspective starts with evidence.")}<div class="data-source"><span>▤</span><div><strong>Account portfolio</strong><small>8 strategic relationships</small></div></div><div class="data-source"><span>▤</span><div><strong>Order history</strong><small>288 records · 3 years</small></div></div><div class="data-source"><span>▤</span><div><strong>Commercial pipeline</strong><small>6 open opportunities</small></div></div><div class="data-source"><span>▤</span><div><strong>Relationship notes</strong><small>16 commercial observations</small></div></div></section><p class="aside-note">Ask for a perspective, then inspect the underlying account. Assumptions and uncertainty belong in the conversation.</p></aside></div>${sourceDetails()}`;
   async function ask(q) {
     if (!q.trim()) return;
-    $("#askInput").value = q;
+    $("#askInput").value = I18N.t(q);
     $("#askSubmit").disabled = true;
     $("#answerPanel").hidden = false;
     $("#answerPanel").innerHTML =
